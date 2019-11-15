@@ -68,6 +68,11 @@ impl<'a> App<'a> {
 
         self.directory_contents = files;
         self.max_file_selection = self.directory_contents.len();
+
+        if self.max_file_selection == 0 {
+            self.selection_index = None;
+        }
+
         Ok(())
     }
 
