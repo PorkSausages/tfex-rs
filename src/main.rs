@@ -38,7 +38,7 @@ fn main() -> Result<(), io::Error> {
                     termion::event::Key::Char('k') => app.decrement_selection(),
                     termion::event::Key::Char('\n') => app.open_folder(),
                     termion::event::Key::Char(':') => app.change_mode(app::Mode::Command),
-                    termion::event::Key::Backspace => app.move_up_directory(),
+                    termion::event::Key::Backspace => app.move_up_directory()?,
                     _ => {}
                 }
             }
@@ -63,7 +63,7 @@ fn main() -> Result<(), io::Error> {
             }
         }
 
-        app.populate_files();
+        app.populate_files()?;
         ui::draw(&mut app)?;
         thread::sleep(time::Duration::from_millis(50));
     }

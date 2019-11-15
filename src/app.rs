@@ -17,6 +17,7 @@ pub struct App<'a> {
     pub selection_index: Option<usize>,
     pub directory_contents: Vec<DirectoryItem>,
     pub command_buffer: Vec<char>,
+    pub file_error: Option<std::io::Error>,
 
     max_file_selection: usize
 }
@@ -32,10 +33,13 @@ impl<'a> App<'a> {
             selection_index: Some(0),
             max_file_selection: 0,
             directory_contents: Vec::new(),
-            command_buffer: Vec::new()
+            command_buffer: Vec::new(),
+            file_error: None
         };
 
-        app.populate_files();
+        if let Err(error) = app.populate_files() {
+            panic!(format!("Error opening {:?}: {:?}", app.current_directory, error.kind()));
+        }
 
         app
     }
@@ -57,13 +61,14 @@ impl<'a> App<'a> {
         }
     }
 
-    pub fn populate_files(&mut self) {
-        let mut files = file_ops::get_files_for_current_directory(&self);
+    pub fn populate_files(&mut self) -> Result<(), std::io::Error> {
+        let mut files = file_ops::get_files_for_current_directory(&self)?;
 
         files.sort();
 
         self.directory_contents = files;
         self.max_file_selection = self.directory_contents.len();
+        Ok(())
     }
 
     pub fn change_mode(&mut self, mode: Mode) {
@@ -78,25 +83,37 @@ impl<'a> App<'a> {
     pub fn open_folder(&mut self) {
         if let Some(selection_index) = self.selection_index {
             if let DirectoryItem::Directory(path) = &self.directory_contents[selection_index] {
+                let previous_dir = self.current_directory.clone();
+
                 self.current_directory = PathBuf::from(path);
-                self.selection_index = Some(0);
-                self.populate_files();
+
+                if let Err(err) = self.populate_files() {
+                    self.current_directory = previous_dir;
+                    self.file_error = Some(err);
+                } else {
+                    self.selection_index = Some(0);
+                }
             }
         }
     }
 
-    pub fn move_up_directory(&mut self) {
+    pub fn move_up_directory(&mut self) -> Result<(), std::io::Error> {
         let current_dir = self.current_directory.to_str().unwrap();
+
         if current_dir != "/" {
             let mut prev_dir_split: Vec<&str> = current_dir.split("/").collect();
             prev_dir_split.remove(prev_dir_split.len() - 1);
             let mut new_dir_string = prev_dir_split.join("/");
-            if new_dir_string == "" { new_dir_string.push_str("/"); }
+            if new_dir_string == "" { 
+                new_dir_string.push_str("/"); 
+            }
 
             self.current_directory = PathBuf::from(new_dir_string);
             self.selection_index = Some(0);
-            self.populate_files();
+            self.populate_files()?;
         }
+
+        Ok(())
     }
 
     pub fn add_to_command_buffer(&mut self, character: char) {

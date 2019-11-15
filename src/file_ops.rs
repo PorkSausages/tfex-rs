@@ -9,11 +9,12 @@ pub enum DirectoryItem {
     Directory(String)
 }
 
-pub fn get_files_for_current_directory(app: &app::App) -> Vec<DirectoryItem> {
+pub fn get_files_for_current_directory(app: &app::App) -> Result<Vec<DirectoryItem>, std::io::Error> {
     //Get list, unwrap, and convert results to &Path 
-    let dir_items: Vec<PathBuf> = read_dir(app.current_directory.as_path()).unwrap() //Handle this error properly
-        .map(|f| f.unwrap().path())
-        .collect();
+    let dir_items: Vec<PathBuf> = match read_dir(app.current_directory.as_path()) {
+        Ok(val) => val.map(|f| f.unwrap().path()).collect(),
+        Err(err) => return Err(err)
+    };
     
     //Convert items to DirectoryItem
     let mut files: Vec<DirectoryItem> = Vec::new();
@@ -27,5 +28,5 @@ pub fn get_files_for_current_directory(app: &app::App) -> Vec<DirectoryItem> {
         }
     };
     
-    files
+    Ok(files)
 }
