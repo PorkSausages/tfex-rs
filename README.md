@@ -23,6 +23,3 @@ tfx-rs should definitely work on macOS. It'll *probably* work on Linux, and almo
 * Clone this repository (`git clone https://github.com/PorkSausages/tfex-rs.git`)
 * Run `cargo install --path /path/to/cloned/repository/`
 * Launch by running `tfex`
-
-# Known issues
-* Fairly often not all of the files/directories in your current directory will be shown. You have to resize the window randomly until the missing entries show up. One day I'll look into why this happens, or maybe you could fix it for me!
