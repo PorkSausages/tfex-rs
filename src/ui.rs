@@ -97,8 +97,8 @@ pub fn draw_file_list(frame: &mut Frame<TermionBackend<RawTerminal<Stdout>>>, ar
             text.remove(selection_index + 1);
         }
 
-        //Figure out number of clumns and their spacing
-        let columns: u16 = (text.len() as f32 / area.height as f32).ceil() as u16;
+        //Figure out number of columns and their spacing
+        let columns: u16 = (text.len() as f32 / (area.height - 2) as f32).ceil() as u16;
         let column_size: u16 = 100 / columns;
         let mut constraints: Vec<Constraint> = Vec::new();
 
