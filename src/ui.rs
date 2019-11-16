@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 use std::io::Stdout;
 use std::io;
+use std::thread;
 
 use termion::raw::RawTerminal;
 
@@ -22,7 +23,7 @@ pub fn draw(app: &mut App) -> Result<(), io::Error> {
         terminal,
         directory_contents,
         selection_index,
-        file_error,
+        error,
         ..
     } = app;
 
@@ -39,7 +40,7 @@ pub fn draw(app: &mut App) -> Result<(), io::Error> {
         
         draw_file_list(&mut f, chunks[0], directory_contents, selection_index, current_directory);
 
-        if let Some(err) = file_error {
+        if let Some(err) = error {
             draw_error(&mut f, chunks[1], err);
             reset_error = true;
         } else {
@@ -48,7 +49,8 @@ pub fn draw(app: &mut App) -> Result<(), io::Error> {
     })?;
 
     if reset_error {
-        app.file_error = None;
+        thread::sleep(std::time::Duration::from_secs(1));
+        app.error = None;
     }
 
     Ok(())
@@ -140,8 +142,8 @@ pub fn draw_command_buffer(frame: &mut Frame<TermionBackend<RawTerminal<Stdout>>
         .render(frame, area);
 }
 
-pub fn draw_error(frame: &mut Frame<TermionBackend<RawTerminal<Stdout>>>, area: Rect, error: &std::io::Error) {
-    let text: Vec<Text> = vec!(Text::styled(format!("ERROR: {:?}", error.kind()), Style::default().fg(Color::Red)));
+pub fn draw_error(frame: &mut Frame<TermionBackend<RawTerminal<Stdout>>>, area: Rect, error: &String) {
+    let text: Vec<Text> = vec!(Text::styled(error.to_string(), Style::default().fg(Color::Red)));
 
     Paragraph::new(text.iter())
         .block(

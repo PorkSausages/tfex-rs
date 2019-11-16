@@ -9,6 +9,7 @@ use termion::raw::RawTerminal;
 
 use crate::file_ops;
 use crate::file_ops::DirectoryItem;
+use crate::commands;
 
 pub struct App<'a> {
     pub current_directory: path::PathBuf,
@@ -17,7 +18,7 @@ pub struct App<'a> {
     pub selection_index: Option<usize>,
     pub directory_contents: Vec<DirectoryItem>,
     pub command_buffer: Vec<char>,
-    pub file_error: Option<std::io::Error>,
+    pub error: Option<String>,
 
     max_file_selection: usize
 }
@@ -34,7 +35,7 @@ impl<'a> App<'a> {
             max_file_selection: 0,
             directory_contents: Vec::new(),
             command_buffer: Vec::new(),
-            file_error: None
+            error: None
         };
 
         if let Err(error) = app.populate_files() {
@@ -78,11 +79,6 @@ impl<'a> App<'a> {
 
     pub fn change_mode(&mut self, mode: Mode) {
         self.mode = mode;
-        match self.mode {
-            Mode::Browse => self.selection_index = Some(0),
-            Mode::Command => self.selection_index = None,
-            _ => {}
-        };
     }
 
     pub fn open_folder(&mut self) {
@@ -94,7 +90,7 @@ impl<'a> App<'a> {
 
                 if let Err(err) = self.populate_files() {
                     self.current_directory = previous_dir;
-                    self.file_error = Some(err);
+                    self.error = Some(err.to_string());
                 } else {
                     self.selection_index = Some(0);
                 }
@@ -128,6 +124,8 @@ impl<'a> App<'a> {
     pub fn execute_command(&mut self) {
         let command_string = self.get_command_buffer_as_string();
         self.command_buffer = Vec::new();
+        commands::process_command(command_string, self);
+
         self.change_mode(Mode::Browse);
     }
 

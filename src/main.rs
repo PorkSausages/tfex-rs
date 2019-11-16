@@ -9,6 +9,7 @@ use tui::backend::TermionBackend;
 mod app;
 mod file_ops;
 mod ui;
+mod commands;
 
 use app::App;
 
@@ -67,8 +68,5 @@ fn main() -> Result<(), io::Error> {
         ui::draw(&mut app)?;
         thread::sleep(time::Duration::from_millis(50));
     }
-
-    
-
     Ok(())
 }
