@@ -21,14 +21,6 @@ version = "1.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "file-util"
-version = "0.1.0"
-dependencies = [
- "termion 1.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "tui 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "itertools"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -76,6 +68,14 @@ dependencies = [
  "numtoa 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "redox_syscall 0.1.56 (registry+https://github.com/rust-lang/crates.io-index)",
  "redox_termios 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "tfex"
+version = "0.1.0"
+dependencies = [
+ "termion 1.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tui 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
