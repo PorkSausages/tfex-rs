@@ -143,5 +143,5 @@ impl<'a> App<'a> {
 pub enum Mode {
     Browse,
     Command,
-    Select
+    _Select
 }
