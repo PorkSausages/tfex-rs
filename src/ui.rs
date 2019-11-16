@@ -39,7 +39,8 @@ pub fn draw(app: &mut App) -> Result<(), io::Error> {
             .split(f.size());
         
         draw_file_list(&mut f, chunks[0], directory_contents, selection_index, current_directory);
-
+        
+        //Error & command box drawing
         if let Some(err) = error {
             draw_error(&mut f, chunks[1], err);
             reset_error = true;

@@ -4,6 +4,7 @@ use crate::app::App;
 use crate::file_ops::DirectoryItem;
 
 pub fn process_command(command_string: String, app: &mut App) {
+    //split command buffer 
     let split_command: Vec<String> = command_string
         .trim_start_matches(":")
         .split_ascii_whitespace()
@@ -20,15 +21,16 @@ pub fn process_command(command_string: String, app: &mut App) {
 
 fn rename_file(command: &Vec<String>, current_dir: &str, app: &App) -> Option<String> {
     if command.len() > 1 && app.selection_index != None {
+        //put new file name back together after originally splitting on whitespace
         let new_name_split = &command[1..command.len()];
         let mut concat = String::new();
         for s in new_name_split {
             concat.push_str(format!("{} ", s).as_str());
         }
-
         let new_name = concat.trim_end();
-        let selection_index = app.selection_index.unwrap();
 
+        let selection_index = app.selection_index.unwrap();
+        
         let current_name = match &app.directory_contents[selection_index] {
             DirectoryItem::Directory(path) => path,
             DirectoryItem::File(path) => path
