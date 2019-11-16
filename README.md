@@ -12,6 +12,7 @@ tfex-rs is a simple \[t\]erminal \[f\]ile \[ex\]plorer written in Rust. It's not
 | Esc | Exit command mode |
 | Enter | Open folder or execute command |
 | Backspace | Move up one directory |
+| q | Quit |
 
 # Working Commands
 So far only `rename [new file name]` and `delete` exist, but I am actively working on new commands (for now).
