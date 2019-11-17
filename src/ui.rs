@@ -93,7 +93,7 @@ pub fn draw_file_list(frame: &mut Frame<TermionBackend<RawTerminal<Stdout>>>, ar
             }.to_string();
     
             //Replace name of selected file with bold name
-            text.insert(*selection_index, Text::styled(selected, Style::default().modifier(Modifier::BOLD)));
+            text.insert(*selection_index, Text::styled(selected, Style::default().modifier(Modifier::BOLD).fg(Color::White)));
             text.remove(selection_index + 1);
         }
 

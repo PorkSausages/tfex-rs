@@ -19,7 +19,9 @@ pub struct App<'a> {
     pub directory_contents: Vec<DirectoryItem>,
     pub command_buffer: Vec<char>,
     pub error: Option<String>,
+    pub buffered_file_name: Option<String>,
 
+    file_buffer: Option<Vec<u8>>,
     max_file_selection: usize
 }
 
@@ -35,6 +37,8 @@ impl<'a> App<'a> {
             max_file_selection: 0,
             directory_contents: Vec::new(),
             command_buffer: Vec::new(),
+            file_buffer: None,
+            buffered_file_name: None,
             error: None
         };
 
@@ -136,6 +140,35 @@ impl<'a> App<'a> {
         }
 
         command_string
+    }
+
+    pub fn get_selected_file_path(&self) -> Option<String> {
+        if self.selection_index != None {
+            let dir_item = self.directory_contents[self.selection_index.unwrap()].clone();
+            match dir_item {
+                DirectoryItem::Directory(path) | DirectoryItem::File(path) => Some(path)
+            }
+        } else {
+            None
+        }
+    }
+
+    pub fn load_selected_into_file_buffer(&mut self) {
+        let result = file_ops::read_file(self);
+        self.file_buffer = result.0;
+        self.buffered_file_name = result.1;
+    }
+
+    pub fn get_buffered_file(&self) -> (Option<Vec<u8>>, Option<String>) {
+        (self.file_buffer.clone(), self.buffered_file_name.clone())
+    }
+
+    pub fn write_buffered_file(&mut self) {
+        let result = file_ops::write_file(self);
+        if let Ok(_) = result {
+           self.buffered_file_name = None;
+           self.file_buffer = None; 
+        }
     }
 }
 

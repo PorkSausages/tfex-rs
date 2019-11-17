@@ -8,6 +8,9 @@ tfex-rs is a simple \[t\]erminal \[f\]ile \[ex\]plorer written in Rust. It's not
 | --- | ------- |
 | j | Move selection down |
 | k | Move selection up |
+| c | Copy file |
+| x | Cut file |
+| v | Paste file |
 | : | Enter command mode |
 | Esc | Exit command mode |
 | Enter | Open folder or execute command |

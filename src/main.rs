@@ -40,6 +40,12 @@ fn main() -> Result<(), io::Error> {
                     termion::event::Key::Char('\n') => app.open_folder(),
                     termion::event::Key::Char(':') => app.change_mode(app::Mode::Command),
                     termion::event::Key::Backspace => app.move_up_directory()?,
+                    termion::event::Key::Char('c') => app.load_selected_into_file_buffer(),
+                    termion::event::Key::Char('x') => {
+                        app.load_selected_into_file_buffer();
+                        file_ops::delete_file(&app);
+                    },
+                    termion::event::Key::Char('v') => app.write_buffered_file(),
                     _ => {}
                 }
             }

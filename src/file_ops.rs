@@ -1,6 +1,7 @@
 use std::path::PathBuf;
-use std::fs::read_dir;
+use std::fs::{read_dir, File};
 use std::fs;
+use std::io::prelude::*;
 
 use crate::app;
 
@@ -42,12 +43,7 @@ pub fn rename_file(command: &Vec<String>, current_dir: &str, app: &app::App) -> 
         }
         let new_name = concat.trim_end();
 
-        let selection_index = app.selection_index.unwrap();
-
-        let current_name = match &app.directory_contents[selection_index] {
-            DirectoryItem::Directory(path) => path,
-            DirectoryItem::File(path) => path
-        };
+        let current_name = app.get_selected_file_path().unwrap();
                 
         match fs::rename(current_name, format!("{}/{}", current_dir, new_name)) {
             Ok(_) => None,
@@ -74,4 +70,58 @@ pub fn delete_file(app: &app::App) -> Option<String> {
     } else {
         Some(String::from("Nothing to delete"))
     }
+}
+
+pub fn read_file(app: &mut app::App) -> (Option<Vec<u8>>, Option<String>) {
+    let file_path = app.get_selected_file_path();
+    if let Some(path) = file_path {
+        //read the file
+        let mut file = File::open(&path).unwrap();
+        let mut buffer: Vec<u8> = Vec::new();
+
+        //get old filename and store it
+        let split_path: Vec<String> = path.split("/")
+            .map(|s| s.to_string())
+            .collect();
+
+        let result = file.read_to_end(&mut buffer);
+        match result {
+            Ok(_) => (Some(buffer), Some(split_path.last().unwrap().to_string())),
+            Err(err) => {
+                app.error = Some(err.to_string());
+                (None, None)
+            }
+        }
+    } else {
+        (None, None)
+    }
+}
+
+pub fn write_file(app: &mut app::App) -> Result<(), std::io::Error> {
+    let buffered_file = app.get_buffered_file();
+    if buffered_file != (None, None) {
+        let mut file = File::create(format!(
+            "{}/{}", 
+            app.current_directory
+                .to_str()
+                .unwrap(), 
+            buffered_file.1
+                .clone()
+                .unwrap()
+                .as_str()
+            )
+        )?;
+
+        let result = file.write(&buffered_file.0.unwrap());
+
+        if let Err(err) = result {
+            app.error = Some(err.to_string());
+            Err(err)
+        } else {
+            Ok(())
+        }
+    } else {
+        Ok(())
+    }
+
 }
