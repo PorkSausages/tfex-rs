@@ -1,12 +1,9 @@
 use std::path::PathBuf;
-use std::io::Stdout;
 use std::io;
 use std::thread;
 
-use termion::raw::RawTerminal;
-
 use tui::Frame;
-use tui::backend::TermionBackend;
+use tui::backend::Backend;
 use tui::widgets::{Widget, Block, Borders, Paragraph, Text};
 use tui::layout::{Layout, Constraint, Direction, Rect};
 use tui::style::{Style, Modifier, Color};
@@ -57,7 +54,7 @@ pub fn draw(app: &mut App) -> Result<(), io::Error> {
     Ok(())
 }
 
-pub fn draw_file_list(frame: &mut Frame<TermionBackend<RawTerminal<Stdout>>>, area: Rect, files: &Vec<file_ops::DirectoryItem>, selected_file: &Option<usize>, current_dir: &PathBuf) {
+pub fn draw_file_list<B: Backend>(frame: &mut Frame<B>, area: Rect, files: &Vec<file_ops::DirectoryItem>, selected_file: &Option<usize>, current_dir: &PathBuf) {
     let mut text: Vec<Text> = Vec::new();
     let inner_rect = Rect::new(area.x + 1, area.y + 1, area.width - 1, area.height - 1); //Shrinking the area by 1 in every direction for the text columns, as border is drawn separately
     
@@ -131,7 +128,7 @@ pub fn draw_file_list(frame: &mut Frame<TermionBackend<RawTerminal<Stdout>>>, ar
     }
 }
 
-pub fn draw_command_buffer(frame: &mut Frame<TermionBackend<RawTerminal<Stdout>>>, area: Rect, command_string: String) {
+pub fn draw_command_buffer<B: Backend>(frame: &mut Frame<B>, area: Rect, command_string: String) {
     let text: Vec<Text> = vec!(Text::raw(command_string));
 
     Paragraph::new(text.iter())
@@ -143,7 +140,7 @@ pub fn draw_command_buffer(frame: &mut Frame<TermionBackend<RawTerminal<Stdout>>
         .render(frame, area);
 }
 
-pub fn draw_error(frame: &mut Frame<TermionBackend<RawTerminal<Stdout>>>, area: Rect, error: &String) {
+pub fn draw_error<B: Backend>(frame: &mut Frame<B>, area: Rect, error: &String) {
     let text: Vec<Text> = vec!(Text::styled(error.to_string(), Style::default().fg(Color::Red)));
 
     Paragraph::new(text.iter())

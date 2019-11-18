@@ -35,8 +35,10 @@ fn main() -> Result<(), io::Error> {
             if app.mode == app::Mode::Browse {
                 match key {
                     termion::event::Key::Char('q') => break,
-                    termion::event::Key::Char('j') => app.increment_selection(),
-                    termion::event::Key::Char('k') => app.decrement_selection(),
+                    termion::event::Key::Char('j') => app.move_selection_down(),
+                    termion::event::Key::Char('k') => app.move_selection_up(),
+                    termion::event::Key::Char('h') => app.move_selection_left(),
+                    termion::event::Key::Char('l') => app.move_selection_right(),
                     termion::event::Key::Char('\n') => app.open_folder(),
                     termion::event::Key::Char(':') => app.change_mode(app::Mode::Command),
                     termion::event::Key::Backspace => app.move_up_directory()?,

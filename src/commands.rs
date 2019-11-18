@@ -12,15 +12,12 @@ pub fn process_command(command_string: String, app: &mut App) {
     let current_dir = &app.current_directory.to_str().unwrap();
     
     match split_command[0].to_ascii_uppercase().as_ref() {
-        "RENAME" => app.error = file_ops::rename_file(&split_command, current_dir, &app),
-        "DELETE" => app.error = {
+        "RENAME" | "REN" => app.error = file_ops::rename_file(&split_command, current_dir, &app),
+        "DELETE" | "DEL" => app.error = {
             let result = file_ops::delete_file(&app);
-            app.decrement_selection();
+            app.move_selection_up();
             result
         },
         _ => app.error = Some(String::from("Not a command")) 
     };
 }   
-
-
-

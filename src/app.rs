@@ -20,6 +20,7 @@ pub struct App<'a> {
     pub command_buffer: Vec<char>,
     pub error: Option<String>,
     pub buffered_file_name: Option<String>,
+    pub window_height: u16,
 
     file_buffer: Option<Vec<u8>>,
     max_file_selection: usize
@@ -28,6 +29,7 @@ pub struct App<'a> {
 impl<'a> App<'a> {
     pub fn new(terminal: &'a mut Terminal<TermionBackend<RawTerminal<Stdout>>>) -> App<'a> {
         let current_dir = path::PathBuf::from("/");
+        let window_height = terminal.size().unwrap().height - 5; //borders + command window height add up to 5
 
         let mut app = App {
             current_directory: current_dir,
@@ -39,7 +41,8 @@ impl<'a> App<'a> {
             command_buffer: Vec::new(),
             file_buffer: None,
             buffered_file_name: None,
-            error: None
+            error: None,
+            window_height: window_height
         };
 
         if let Err(error) = app.populate_files() {
@@ -49,7 +52,7 @@ impl<'a> App<'a> {
         app
     }
 
-    pub fn increment_selection(&mut self) {
+    pub fn move_selection_down(&mut self) {
         if let Some(selection_index) = self.selection_index {
             if selection_index < self.max_file_selection - 1 { 
                 self.selection_index = Some(selection_index + 1); 
@@ -58,10 +61,30 @@ impl<'a> App<'a> {
         
     }
 
-    pub fn decrement_selection(&mut self) {
+    pub fn move_selection_up(&mut self) {
         if let Some(selection_index) = self.selection_index {
             if selection_index > 0 { 
                 self.selection_index = Some(selection_index - 1); 
+            }
+        }
+    }
+    
+    pub fn move_selection_left(&mut self) {
+        if let Some(selection_index) = self.selection_index {
+            if selection_index >= self.window_height as usize {
+                self.selection_index = Some(selection_index - self.window_height as usize);
+            } else {
+                self.selection_index = Some(0);
+            }
+        }
+    }
+
+    pub fn move_selection_right(&mut self) {
+        if let Some(selection_index) = self.selection_index {
+            if selection_index + self.window_height as usize <= self.directory_contents.len() - 1 {
+                self.selection_index = Some(selection_index + self.window_height as usize);
+            } else {
+                self.selection_index = Some(self.directory_contents.len() - 1);
             }
         }
     }

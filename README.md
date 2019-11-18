@@ -6,8 +6,10 @@ tfex-rs is a simple \[t\]erminal \[f\]ile \[ex\]plorer written in Rust. It's not
 # Controls
 | Key | Command |
 | --- | ------- |
+| h | Move selection left |
 | j | Move selection down |
 | k | Move selection up |
+| l | Move selection right |
 | c | Copy file |
 | x | Cut file |
 | v | Paste file |
@@ -18,7 +20,10 @@ tfex-rs is a simple \[t\]erminal \[f\]ile \[ex\]plorer written in Rust. It's not
 | q | Quit |
 
 # Working Commands
-So far only `rename [new file name]` and `delete` exist, but I am actively working on new commands (for now).
+| Long | Short | Description |
+|------|-------|-------------|
+| :rename | :ren | Renames the selected file |
+| :delete | :del | Deletes the selected file |
 
 # Installation
 tfx-rs should definitely work on macOS. It'll *probably* work on Linux, and almost definitely won't work on Windows. 
