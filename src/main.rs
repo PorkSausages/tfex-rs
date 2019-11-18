@@ -29,6 +29,7 @@ fn main() -> Result<(), io::Error> {
 
     //Main application loop
     loop {
+        app.update_window_height();
         //Handle input
         let input = stdin.next();
         if let Some(Ok(key)) = input {

@@ -89,6 +89,10 @@ impl<'a> App<'a> {
         }
     }
 
+    pub fn update_window_height(&mut self) {
+        self.window_height = self.terminal.size().unwrap().height - 5; //borders + command window height add up to 5
+    }
+
     pub fn populate_files(&mut self) -> Result<(), std::io::Error> {
         let mut files = file_ops::get_files_for_current_directory(&self)?;
 
