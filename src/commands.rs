@@ -18,6 +18,7 @@ pub fn process_command(command_string: String, app: &mut App) {
             app.move_selection_up();
             result
         },
+        "DIRECTORY" | "DIR" => app.error = file_ops::create_directory(&split_command, current_dir),
         _ => app.error = Some(String::from("Not a command")) 
     };
 }   

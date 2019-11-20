@@ -132,3 +132,24 @@ pub fn write_file(app: &mut app::App) -> Result<(), std::io::Error> {
     }
 
 }
+
+pub fn create_directory(command: &Vec<String>, current_directory: &str) -> Option<String> {
+    if command.len() > 1 {
+       //put new file name back together after originally splitting on whitespace
+       let new_name_split = &command[1..command.len()];
+       let mut concat = String::new();
+       for s in new_name_split {
+           concat.push_str(format!("{} ", s).as_str());
+       }
+       let new_name = concat.trim_end(); 
+
+       let result = fs::create_dir(String::from(format!("{}/{}", current_directory, new_name)));
+
+       match result {
+           Ok(_) => None,
+           Err(err) => Some(err.to_string())
+       }
+    } else {
+        Some(String::from("Wrong number of arguments supplied"))
+    }
+}
