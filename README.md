@@ -23,7 +23,7 @@ tfex-rs is a simple \[t\]erminal \[f\]ile \[ex\]plorer written in Rust. It's not
 | Long | Short | Description |
 |------|-------|-------------|
 | :rename [new name]| :ren | Renames the selected file or directory |
-| :delete | :del | Deletes the selected file or directory |
+| :delete | :del | Deletes the selected file or directory **[Dangerous - will delete all directory contents too. This is irreversible]**|
 | :directory [name]| :dir | Creates a new directory |
 
 
