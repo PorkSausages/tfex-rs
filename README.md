@@ -22,8 +22,10 @@ tfex-rs is a simple \[t\]erminal \[f\]ile \[ex\]plorer written in Rust. It's not
 # Working Commands
 | Long | Short | Description |
 |------|-------|-------------|
-| :rename | :ren | Renames the selected file |
-| :delete | :del | Deletes the selected file |
+| :rename [new name]| :ren | Renames the selected file or directory |
+| :delete | :del | Deletes the selected file or directory |
+| :directory [name]| :dir | Creates a new directory |
+
 
 # Installation
 tfx-rs should definitely work on macOS. It'll *probably* work on Linux, and almost definitely won't work on Windows. 
