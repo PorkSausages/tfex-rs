@@ -5,7 +5,7 @@ use std::thread;
 use tui::Frame;
 use tui::backend::Backend;
 use tui::widgets::{Widget, Block, Borders, Paragraph, Text};
-use tui::layout::{Layout, Constraint, Direction, Rect};
+use tui::layout::{Layout, Constraint, Direction, Rect, Alignment};
 use tui::style::{Style, Modifier, Color};
 
 use crate::file_ops;
@@ -55,7 +55,8 @@ pub fn draw(app: &mut App) -> Result<(), io::Error> {
 }
 
 pub fn draw_file_list<B: Backend>(frame: &mut Frame<B>, area: Rect, files: &Vec<file_ops::DirectoryItem>, selected_file: &Option<usize>, current_dir: &PathBuf) {
-    let mut text: Vec<Text> = Vec::new();
+    let mut names: Vec<Text> = Vec::new();
+    let mut sizes: Vec<Text> = Vec::new();
     let inner_rect = Rect::new(area.x + 1, area.y + 1, area.width - 1, area.height - 1); //Shrinking the area by 1 in every direction for the text columns, as border is drawn separately
     
     //Draw the border
@@ -68,15 +69,17 @@ pub fn draw_file_list<B: Backend>(frame: &mut Frame<B>, area: Rect, files: &Vec<
         //Convert DirectoryItems to Text
         for file in files {
             match file {
-                file_ops::DirectoryItem::File(path) => {
+                file_ops::DirectoryItem::File((path, size)) => {
                     let split: Vec<&str> = path.split('/').collect();
                     let string = String::from(format!("📄 {}\n", split[split.len() - 1 as usize]));
-                    text.push(Text::raw(string));
+                    names.push(Text::raw(string));
+                    sizes.push(Text::raw(format!("{}KB\n", size.to_string())));
                 },
                 file_ops::DirectoryItem::Directory(path) => {
                     let split: Vec<&str> = path.split('/').collect();
                     let string = String::from(format!("📁 {}\n", split[split.len() - 1 as usize]));
-                    text.push(Text::raw(string));
+                    names.push(Text::raw(string));
+                    sizes.push(Text::raw("\n"));
                 }
             }
         }
@@ -84,18 +87,18 @@ pub fn draw_file_list<B: Backend>(frame: &mut Frame<B>, area: Rect, files: &Vec<
         //Highlight selected file
         if let Some(selection_index) = selected_file {
             //Get name of selected file
-            let selected = match &mut text[*selection_index] {
+            let selected = match &mut names[*selection_index] {
                 Text::Raw(value) => value,
                 _ => { "" }
             }.to_string();
     
             //Replace name of selected file with bold name
-            text.insert(*selection_index, Text::styled(selected, Style::default().modifier(Modifier::BOLD).fg(Color::Indexed(2))));
-            text.remove(selection_index + 1);
+            names.insert(*selection_index, Text::styled(selected, Style::default().modifier(Modifier::BOLD).fg(Color::Indexed(2))));
+            names.remove(selection_index + 1);
         }
 
         //Figure out number of columns and their spacing
-        let columns: u16 = (text.len() as f32 / (area.height - 2) as f32).ceil() as u16;
+        let columns: u16 = (names.len() as f32 / (area.height - 2) as f32).ceil() as u16;
         let column_size: u16 = 100 / columns;
         let mut constraints: Vec<Constraint> = Vec::new();
 
@@ -115,15 +118,26 @@ pub fn draw_file_list<B: Backend>(frame: &mut Frame<B>, area: Rect, files: &Vec<
             let from: usize = (i as usize * height) as usize;
             let mut to: usize = (i as usize * height) + (height);
 
-            if to >= text.len() {
-                to = text.len();
+            if to >= names.len() {
+                to = names.len();
             }
 
-            let iter = text[from..to].iter();
+            let names_iter = names[from..to].iter();
+            let sizes_iter = sizes[from..to].iter();
 
-            Paragraph::new(iter)
+            Paragraph::new(names_iter)
                 .wrap(false)
                 .render(frame, chunks[i as usize]);
+
+            Paragraph::new(sizes_iter)
+                .alignment(Alignment::Right)
+                .wrap(false)
+                .render(frame, Rect { //create new Rect that doesn't overlap the border
+                    height: chunks[i as usize].height,
+                    width: chunks[i as usize].width - 2,
+                    x: chunks[i as usize].x,
+                    y: chunks[i as usize].y
+                });
         }
     }
 }

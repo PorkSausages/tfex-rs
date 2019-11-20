@@ -173,7 +173,7 @@ impl<'a> App<'a> {
         if self.selection_index != None {
             let dir_item = self.directory_contents[self.selection_index.unwrap()].clone();
             match dir_item {
-                DirectoryItem::Directory(path) | DirectoryItem::File(path) => Some(path)
+                DirectoryItem::Directory(path) | DirectoryItem::File((path, _)) => Some(path)
             }
         } else {
             None
