@@ -1,15 +1,15 @@
 use std::{io, thread, time};
 
-use termion::raw::IntoRawMode;
 use termion::input::TermRead;
+use termion::raw::IntoRawMode;
 
-use tui::Terminal;
 use tui::backend::TermionBackend;
+use tui::Terminal;
 
 mod app;
+mod commands;
 mod file_ops;
 mod ui;
-mod commands;
 
 use app::App;
 
@@ -47,7 +47,7 @@ fn main() -> Result<(), io::Error> {
                     termion::event::Key::Char('x') => {
                         app.load_selected_into_file_buffer();
                         file_ops::delete_file(&app);
-                    },
+                    }
                     termion::event::Key::Char('v') => app.write_buffered_file(),
                     _ => {}
                 }

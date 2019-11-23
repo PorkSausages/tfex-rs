@@ -1,15 +1,15 @@
-use std::path::PathBuf;
 use std::io;
+use std::path::PathBuf;
 use std::thread;
 
-use tui::Frame;
 use tui::backend::Backend;
-use tui::widgets::{Widget, Block, Borders, Paragraph, Text};
-use tui::layout::{Layout, Constraint, Direction, Rect, Alignment};
-use tui::style::{Style, Modifier, Color};
+use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
+use tui::style::{Color, Modifier, Style};
+use tui::widgets::{Block, Borders, Paragraph, Text, Widget};
+use tui::Frame;
 
-use crate::file_ops;
 use crate::app::App;
+use crate::file_ops;
 
 pub fn draw(app: &mut App) -> Result<(), io::Error> {
     let command_string = app.get_command_buffer_as_string();
@@ -29,14 +29,17 @@ pub fn draw(app: &mut App) -> Result<(), io::Error> {
     terminal.draw(|mut f| {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
-            .constraints([
-                Constraint::Min(3),
-                Constraint::Length(3)
-            ].as_ref())
+            .constraints([Constraint::Min(3), Constraint::Length(3)].as_ref())
             .split(f.size());
-        
-        draw_file_list(&mut f, chunks[0], directory_contents, selection_index, current_directory);
-        
+
+        draw_file_list(
+            &mut f,
+            chunks[0],
+            directory_contents,
+            selection_index,
+            current_directory,
+        );
+
         //Error & command box drawing
         if let Some(err) = error {
             draw_error(&mut f, chunks[1], err);
@@ -54,11 +57,17 @@ pub fn draw(app: &mut App) -> Result<(), io::Error> {
     Ok(())
 }
 
-pub fn draw_file_list<B: Backend>(frame: &mut Frame<B>, area: Rect, files: &Vec<file_ops::DirectoryItem>, selected_file: &Option<usize>, current_dir: &PathBuf) {
+pub fn draw_file_list<B: Backend>(
+    frame: &mut Frame<B>,
+    area: Rect,
+    files: &Vec<file_ops::DirectoryItem>,
+    selected_file: &Option<usize>,
+    current_dir: &PathBuf,
+) {
     let mut names: Vec<Text> = Vec::new();
     let mut sizes: Vec<Text> = Vec::new();
     let inner_rect = Rect::new(area.x + 1, area.y + 1, area.width - 1, area.height - 1); //Shrinking the area by 1 in every direction for the text columns, as border is drawn separately
-    
+
     //Draw the border
     Block::default()
         .borders(Borders::ALL)
@@ -74,7 +83,7 @@ pub fn draw_file_list<B: Backend>(frame: &mut Frame<B>, area: Rect, files: &Vec<
                     let string = String::from(format!("📄 {}\n", split[split.len() - 1 as usize]));
                     names.push(Text::raw(string));
                     sizes.push(Text::raw(format!("{}KB\n", size.to_string())));
-                },
+                }
                 file_ops::DirectoryItem::Directory(path) => {
                     let split: Vec<&str> = path.split('/').collect();
                     let string = String::from(format!("📁 {}\n", split[split.len() - 1 as usize]));
@@ -89,13 +98,20 @@ pub fn draw_file_list<B: Backend>(frame: &mut Frame<B>, area: Rect, files: &Vec<
             //Get name of selected file
             let selected = match &mut names[*selection_index] {
                 Text::Raw(value) => value,
-                _ => { "" }
-            }.to_string();
-    
+                _ => "",
+            }
+            .to_string();
+
             //Replace name of selected file with bold name
-            names.insert(*selection_index, Text::styled(selected, Style::default()
-                .modifier(Modifier::BOLD)
-                .fg(Color::Indexed(2))));
+            names.insert(
+                *selection_index,
+                Text::styled(
+                    selected,
+                    Style::default()
+                        .modifier(Modifier::BOLD)
+                        .fg(Color::Indexed(2)),
+                ),
+            );
             names.remove(selection_index + 1);
         }
 
@@ -114,7 +130,7 @@ pub fn draw_file_list<B: Backend>(frame: &mut Frame<B>, area: Rect, files: &Vec<
             .direction(Direction::Horizontal)
             .constraints(constraints)
             .split(inner_rect);
-        
+
         for i in 0..=columns - 1 {
             let height: usize = (area.height - 2) as usize; // -2 to account for the border
             let from: usize = (i as usize * height) as usize;
@@ -134,37 +150,40 @@ pub fn draw_file_list<B: Backend>(frame: &mut Frame<B>, area: Rect, files: &Vec<
             Paragraph::new(sizes_iter)
                 .alignment(Alignment::Right)
                 .wrap(false)
-                .render(frame, Rect { //create new Rect that doesn't overlap the border
-                    height: chunks[i as usize].height,
-                    width: chunks[i as usize].width - 2,
-                    x: chunks[i as usize].x,
-                    y: chunks[i as usize].y
-                });
+                .render(
+                    frame,
+                    Rect {
+                        //create new Rect that doesn't overlap the border
+                        height: chunks[i as usize].height,
+                        width: chunks[i as usize].width - 2,
+                        x: chunks[i as usize].x,
+                        y: chunks[i as usize].y,
+                    },
+                );
         }
     }
 }
 
 pub fn draw_command_buffer<B: Backend>(frame: &mut Frame<B>, area: Rect, command_string: String) {
-    let text: Vec<Text> = vec!(Text::raw(command_string));
+    let text: Vec<Text> = vec![Text::raw(command_string)];
 
     Paragraph::new(text.iter())
-        .block(
-            Block::default()
-                .title("Command")
-                .borders(Borders::ALL)
-        )
+        .block(Block::default().title("Command").borders(Borders::ALL))
         .render(frame, area);
 }
 
 pub fn draw_error<B: Backend>(frame: &mut Frame<B>, area: Rect, error: &String) {
-    let text: Vec<Text> = vec!(Text::styled(error.to_string(), Style::default().fg(Color::Red)));
+    let text: Vec<Text> = vec![Text::styled(
+        error.to_string(),
+        Style::default().fg(Color::Red),
+    )];
 
     Paragraph::new(text.iter())
         .block(
             Block::default()
                 .title("Error")
                 .borders(Borders::ALL)
-                .style(Style::default().fg(Color::Red))
+                .style(Style::default().fg(Color::Red)),
         )
         .render(frame, area);
 }

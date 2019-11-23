@@ -1,15 +1,15 @@
 use std::io::Stdout;
-use std::path::PathBuf;
 use std::path;
+use std::path::PathBuf;
 
-use tui::Terminal;
 use tui::backend::TermionBackend;
+use tui::Terminal;
 
 use termion::raw::RawTerminal;
 
+use crate::commands;
 use crate::file_ops;
 use crate::file_ops::DirectoryItem;
-use crate::commands;
 
 pub struct App<'a> {
     pub current_directory: path::PathBuf,
@@ -23,7 +23,7 @@ pub struct App<'a> {
     pub window_height: u16,
 
     file_buffer: Option<Vec<u8>>,
-    max_file_selection: usize
+    max_file_selection: usize,
 }
 
 impl<'a> App<'a> {
@@ -42,11 +42,15 @@ impl<'a> App<'a> {
             file_buffer: None,
             buffered_file_name: None,
             error: None,
-            window_height: window_height
+            window_height: window_height,
         };
 
         if let Err(error) = app.populate_files() {
-            panic!(format!("Error opening {:?}: {:?}", app.current_directory, error.kind()));
+            panic!(format!(
+                "Error opening {:?}: {:?}",
+                app.current_directory,
+                error.kind()
+            ));
         }
 
         app
@@ -54,21 +58,20 @@ impl<'a> App<'a> {
 
     pub fn move_selection_down(&mut self) {
         if let Some(selection_index) = self.selection_index {
-            if selection_index < self.max_file_selection - 1 { 
-                self.selection_index = Some(selection_index + 1); 
+            if selection_index < self.max_file_selection - 1 {
+                self.selection_index = Some(selection_index + 1);
             }
         }
-        
     }
 
     pub fn move_selection_up(&mut self) {
         if let Some(selection_index) = self.selection_index {
-            if selection_index > 0 { 
-                self.selection_index = Some(selection_index - 1); 
+            if selection_index > 0 {
+                self.selection_index = Some(selection_index - 1);
             }
         }
     }
-    
+
     pub fn move_selection_left(&mut self) {
         if let Some(selection_index) = self.selection_index {
             if selection_index >= self.window_height as usize {
@@ -136,8 +139,8 @@ impl<'a> App<'a> {
             let mut prev_dir_split: Vec<&str> = current_dir.split("/").collect();
             prev_dir_split.remove(prev_dir_split.len() - 1);
             let mut new_dir_string = prev_dir_split.join("/");
-            if new_dir_string == "" { 
-                new_dir_string.push_str("/"); 
+            if new_dir_string == "" {
+                new_dir_string.push_str("/");
             }
 
             self.current_directory = PathBuf::from(new_dir_string);
@@ -173,7 +176,7 @@ impl<'a> App<'a> {
         if self.selection_index != None {
             let dir_item = self.directory_contents[self.selection_index.unwrap()].clone();
             match dir_item {
-                DirectoryItem::Directory(path) | DirectoryItem::File((path, _)) => Some(path)
+                DirectoryItem::Directory(path) | DirectoryItem::File((path, _)) => Some(path),
             }
         } else {
             None
@@ -193,8 +196,8 @@ impl<'a> App<'a> {
     pub fn write_buffered_file(&mut self) {
         let result = file_ops::write_file(self);
         if let Ok(_) = result {
-           self.buffered_file_name = None;
-           self.file_buffer = None; 
+            self.buffered_file_name = None;
+            self.file_buffer = None;
         }
     }
 }
@@ -203,5 +206,5 @@ impl<'a> App<'a> {
 pub enum Mode {
     Browse,
     Command,
-    _Select
+    _Select,
 }
